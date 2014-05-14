@@ -9,37 +9,32 @@ function Calculator(config) {
 
     var values;
 
+    /** example 
+     var c = new Calculator();
+       
+      c.rateOfReturn({
+        interestRate:8,
+        startingValue: 3,
+        finalValue: null,
+        numMonths: 32
+      })
+    
+    **/
+
     calc.instructions = function() {
         console.log("%cThanks for using Calculon!", "color: blue");
         console.log("%cFunctions", "color: black");
-        console.log("%ccalculator.ror(parameters)", "color: green");
-        console.log("%c@parameters: object { \n}", "color: red");
+        console.log("%ccalculator.rateOfReturn(parameters)", "color: green");
+        console.log("%c  @parameters: object { \n    %cinterestRate:number - the annual rate of return \n    startingValue:number - the starting value of the investment \n    finalValue:number - the final value of the investment at the end of the time period\n    numMonths:number -  the number of months in the time period\n  %c}", "color: red", "color:blue", "color: red");
 
-        function Instructions(useForce) {
-            this.rateOfReturn = {
-                aliases: "ror",
-                description: "Given an object with four of the five entries filled in, it will return the fifth.",
-                usage: {
-                  example:"calculator.calculate(parameters)",
-                  "@parameters":{
-                    interestRate:{
-                      description:"The annual interest rate.",
-                      example:"8.42 (equivalent to an 8.42% annual rate of return)"
-                    }
-                  }
-                },
-                
-            }
-        }
-
-        return new Instructions();
 
     }
 
 
     calc.rateOfReturn = function(parameters) {
 
-        var res = undefined;
+        var r = {};
+        r.value = null;
 
         var directive;
 
@@ -72,24 +67,26 @@ function Calculator(config) {
 
         switch (directive) {
             case 'interestRate':
-                res = calc.getInterestRate(parameters);
+                r.value = calc.getInterestRate(parameters);
                 break;
 
             case ('startingValue'):
-                res = calc.getStartingValue(parameters);
+                r.value = calc.getStartingValue(parameters);
                 break;
 
             case ('finalValue'):
-                res = calc.getFinalValue(parameters);
+                r.value = calc.getFinalValue(parameters);
                 break;
 
             case ('numMonths'):
-                res = calc.getNumMonths(parameters);
+                r.value = calc.getNumMonths(parameters);
                 break;
 
         }
 
-        return res;
+        r.value = parseFloat(r.value);
+
+        return r;
 
 
     }
