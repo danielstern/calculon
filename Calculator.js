@@ -10,45 +10,64 @@ function Calculator(config) {
     var values;
 
     calc.instructions = function() {
-      console.log("%cThanks for using Calculon!", "color: blue");
-      console.log("%cFunctions", "color: black");
-      console.log("%ccalculator.ror(parameters)", "color: green"); 
-      console.log( "%c@parameters: object { \n}", "color: red");
+        console.log("%cThanks for using Calculon!", "color: blue");
+        console.log("%cFunctions", "color: black");
+        console.log("%ccalculator.ror(parameters)", "color: green");
+        console.log("%c@parameters: object { \n}", "color: red");
+
+        function Instructions(useForce) {
+            this.rateOfReturn = {
+                aliases: "ror",
+                description: "Given an object with four of the five entries filled in, it will return the fifth.",
+                usage: {
+                  example:"calculator.calculate(parameters)",
+                  "@parameters":{
+                    interestRate:{
+                      description:"The annual interest rate.",
+                      example:"8.42 (equivalent to an 8.42% annual rate of return)"
+                    }
+                  }
+                },
+                
+            }
+        }
+
+        return new Instructions();
 
     }
 
 
-    calc.calculate = function(parameters) {
+    calc.rateOfReturn = function(parameters) {
 
         var res = undefined;
 
         var directive;
 
         if (!parameters) {
-          this.instructions();
-          return;
+            this.instructions();
+            return;
         }
 
         if (!parameters.interestRate) {
-          directive = "interestRate";
+            directive = "interestRate";
         }
 
         if (!parameters.startingValue) {
-          directive = "startingValue";
+            directive = "startingValue";
         }
 
         if (!parameters.finalValue) {
-          directive = "finalValue";
+            directive = "finalValue";
         }
 
         if (!parameters.numMonths) {
-          directive = "numMonths";
+            directive = "numMonths";
         }
 
         if (!directive) {
-          console.log("You must pass a valid parameters object with all values but one filled in.");
-          this.instructions();
-          return;
+            console.log("You must pass a valid parameters object with all values but one filled in.");
+            this.instructions();
+            return;
         }
 
         switch (directive) {
@@ -75,7 +94,7 @@ function Calculator(config) {
 
     }
 
-    calc.ror = calc.calculate;
+    calc.ror = calc.rateOfReturn;
 
     calc.getStatistics = function(parameters) {
 
