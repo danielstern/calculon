@@ -76,12 +76,12 @@ Calculon.ror = Calculon.rateOfReturn
 ```javascript
   Calculon.rateOfReturn({
     startingValue: 100,
-    numMonths: 120,
+    numMonths: 150,
     interestRate: 7.58,
     recurringPayment: 6,
     finalValue: undefined,
   })
-  //Object {value: 28.451, valueType: "interestRate", params: Object, stats: Array[120]}
+  //Object {value: 1759.38, valueType: "finalValue", params: Object, stats: Array[150]}
 ```
 
 ```javascript
