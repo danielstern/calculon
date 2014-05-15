@@ -66,6 +66,8 @@ function Calculator(config) {
             totalEmpty++;
         };
 
+        parameters.recurringPayment = parameters.recurringPayment || 0;
+
 
         if (!directive || totalEmpty > 1) {
             console.log("You must pass a valid parameters object with all values but one filled in. All values must be numbers.");
@@ -106,7 +108,7 @@ function Calculator(config) {
     calc.ror = calc.rateOfReturn;
 
 
-    calc.refreshStashesValues = function() {
+    calc.refreshStashedValues = function() {
         calc.allPfsCalculated = [];
     }
 
@@ -114,11 +116,9 @@ function Calculator(config) {
         calc.allPfsCalculated.push(value);
     }
 
-    calc.refreshStashesValues();
-
     calc.getFinalValue = function(values) {
 
-        calc.refreshStashesValues();
+        calc.refreshStashedValues();
 
         var numMonths = values.numMonths;
 
@@ -282,11 +282,15 @@ function Calculator(config) {
 
     calc.getNumMonths = function(values) {
 
-        var apf = values.finalValue;
-        var p1 = Number(values.startingValue);
+        console.log("Getting number of months, values", values);
+
+        var apf = parseFloat(values.finalValue);
+        var p1 = parseFloat(values.startingValue);
         var pf = p1;
-        var pr = Number(values.recurringPayment);
-        var i = Number(values.interestRate) / 12;
+        var pr = parseFloat(values.recurringPayment);
+        var i = parseFloat(values.interestRate) / 12;
+
+
 
         var monthsThru = 0;
 
@@ -297,11 +301,11 @@ function Calculator(config) {
 
         var timeTargetAccuracy = 50;
 
-        var count = calc.calculatorPrecision;
+        var count = this.calculatorPrecision;
         var adjustmentAmount = 15;
 
         while (count > 0) {
-            calc.allPfsCalculated = [];
+            this.allPfsCalculated = [];
             var numMonths = guessNumMonths;
 
             for (var n = 0; n < numMonths; n++) {
@@ -343,7 +347,7 @@ function Calculator(config) {
 
         var temporalAccuracyTarget = pf * 0.22;
 
-        if (isNaN(precision) || precision > temporalAccuracyTarget) return "?"
+       // if (isNaN(precision) || precision > temporalAccuracyTarget) return -1
         return numMonths.toFixed(3);
 
     }
