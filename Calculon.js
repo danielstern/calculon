@@ -1,16 +1,16 @@
-function Calculator(config) {
+function Calculon(config) {
 
     var calc = this;
 
-    calc.targetAccuracy = 0.0001; // increases the accuracy of the compound interest calculator. the higher it is, the higher you must make precision, which affects performance.
-    calc.calculatorPrecision = 250; // this is an important value as it determines how often you get the "?"
+    calc.targetAccuracy = 0.0001; // increases the accuracy of the compound interest Calculon. the higher it is, the higher you must make precision, which affects performance.
+    calc.CalculonPrecision = 250; // this is an important value as it determines how often you get the "?"
     calc.allPfsCalculated = [];
 
 
     var values;
 
     /** example 
-     var c = new Calculator();
+     var c = new Calculon();
        
       c.rateOfReturn({
         interestRate:8,
@@ -24,7 +24,7 @@ function Calculator(config) {
     calc.instructions = function() {
         console.log("%cThanks for using Calculon!", "color: blue");
         console.log("%cFunctions", "color: black");
-        console.log("%ccalculator.rateOfReturn(parameters)", "color: green");
+        console.log("%cCalculon.rateOfReturn(parameters)", "color: green");
         console.log("%c  @parameters: object { \n    %cinterestRate:number - the annual rate of return \n    startingValue:number - the starting value of the investment \n    finalValue:number - the final value of the investment at the end of the time period\n    numMonths:number -  the number of months in the time period\n  %c}", "color: red", "color:blue", "color: red");
 
         console.log("%cExample Valid Input", "color: black");
@@ -223,7 +223,7 @@ function Calculator(config) {
         var precision;
         var targetPrecision = 10; // less than this amount apart  
 
-        var count = calc.calculatorPrecision;
+        var count = calc.CalculonPrecision;
         var adjustmentAmount = 0.01;
 
         while (count > 0) {
@@ -269,7 +269,7 @@ function Calculator(config) {
 
         i = ((guessI - 1) * 12) * 100;
 
-        if (precision > 10 || isNaN(precision || count >= calc.calculatorPrecision)) return "?"
+        if (precision > 10 || isNaN(precision || count >= calc.CalculonPrecision)) return "?"
      //   $('#interestError').html('');
         return i.toFixed(3);
 
@@ -301,7 +301,7 @@ function Calculator(config) {
 
         var timeTargetAccuracy = 50;
 
-        var count = this.calculatorPrecision;
+        var count = this.CalculonPrecision;
         var adjustmentAmount = 15;
 
         while (count > 0) {
@@ -353,6 +353,10 @@ function Calculator(config) {
     }
 }
 
-var _calc = new Calculator;
-window.c = _calc;
-Calculator.instructions = _calc.instructions;
+var __calc = new Calculon;
+Calculon.instructions = __calc.instructions;
+Calculon.rateOfReturn = function(params) {
+    var c = new Calculon();
+    return c.ror(params);
+}
+Calculon.ror = Calculon.rateOfReturn;
