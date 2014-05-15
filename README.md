@@ -65,3 +65,32 @@ You must pass a parameters object to `Calculon.rateOfReturn()` with all *but one
 ```
 Calculon.ror = Calculon.rateOfReturn
 ```
+
+#### Examples
+
+```javascript
+  Calculon.instructions();
+  // outputs colorful instructions
+```
+
+```javascript
+  Calculon.rateOfReturn({
+    startingValue: 100,
+    numMonths: 120,
+    interestRate: 7.58,
+    recurringPayment: 6,
+    finalValue: undefined,
+  })
+  //Object {value: 28.451, valueType: "interestRate", params: Object, stats: Array[120]}
+```
+
+```javascript
+  Calculon.rateOfReturn({
+    startingValue: 3,
+    finalValue: 50,
+    numMonths: 120
+  })
+  //Object {value: 28.451, valueType: "interestRate", params: Object, stats: Array[120]}
+```
+
+
