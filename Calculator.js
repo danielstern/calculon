@@ -27,7 +27,8 @@ function Calculator(config) {
         console.log("%ccalculator.rateOfReturn(parameters)", "color: green");
         console.log("%c  @parameters: object { \n    %cinterestRate:number - the annual rate of return \n    startingValue:number - the starting value of the investment \n    finalValue:number - the final value of the investment at the end of the time period\n    numMonths:number -  the number of months in the time period\n  %c}", "color: red", "color:blue", "color: red");
 
-
+        console.log("%cExample Valid Input", "color: black");
+        console.log("%c  calc.rateOfReturn ({ \n    %cinterestRate: 7.8\n    startingValue:  10000 \n    finalValue:null\n    numMonths: 240\n  %c});", "color: red", "color:blue", "color: red");
     }
 
 
@@ -85,6 +86,7 @@ function Calculator(config) {
         }
 
         r.value = parseFloat(r.value);
+        r.stats = this.getChartValues(parameters)
 
         return r;
 
@@ -201,7 +203,6 @@ function Calculator(config) {
         }
 
         return pf.toFixed(2);
-
     }
 
 
@@ -273,7 +274,7 @@ function Calculator(config) {
         i = ((guessI - 1) * 12) * 100;
 
         if (precision > 10 || isNaN(precision || count >= calc.calculatorPrecision)) return "?"
-        $('#interestError').html('');
+     //   $('#interestError').html('');
         return i.toFixed(3);
 
     }
@@ -352,4 +353,6 @@ function Calculator(config) {
     }
 }
 
-Calculator.instructions = Calculator.prototype.instructions;
+var _calc = new Calculator;
+window.c = _calc;
+Calculator.instructions = _calc.instructions;
