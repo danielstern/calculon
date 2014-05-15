@@ -38,6 +38,10 @@ How to use?
 You must pass a parameters object to `Calculon.rateOfReturn()` with all *but one* entry filled out (in the example above, finalValue is `null`). Recurring payment is optional and cannot be calculated.
 
 ```
+  returnObject = Calculon.rateOfReturn(parameters)
+```
+
+```
 @parameters: object { 
     interestRate:number - the annual rate of return 
     startingValue:number - the starting value of the investment 
@@ -54,4 +58,10 @@ You must pass a parameters object to `Calculon.rateOfReturn()` with all *but one
     params:object - the original parameters passed to the function
     stats:array - the value each month
 } 
+```
+
+###Shortcuts
+
+```
+Calculon.ror = Calculon.rateOfReturn
 ```
