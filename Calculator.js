@@ -42,27 +42,35 @@ function Calculator(config) {
         if (!parameters) {
             this.instructions();
             return;
-        }
+        };
+
+        var totalEmpty = 0;
 
         if (!parameters.interestRate) {
             directive = "interestRate";
+            totalEmpty++;
         }
 
         if (!parameters.startingValue) {
             directive = "startingValue";
+            totalEmpty++;
         }
 
         if (!parameters.finalValue) {
             directive = "finalValue";
+            totalEmpty++;
         }
 
         if (!parameters.numMonths) {
             directive = "numMonths";
-        }
+            totalEmpty++;
+        };
 
-        if (!directive) {
-            console.log("You must pass a valid parameters object with all values but one filled in.");
-            this.instructions();
+
+        if (!directive || totalEmpty > 1) {
+            console.log("You must pass a valid parameters object with all values but one filled in. All values must be numbers.");
+            console.log("%cYour parameters:","color:magenta", parameters);
+            
             return;
         }
 
@@ -86,7 +94,9 @@ function Calculator(config) {
         }
 
         r.value = parseFloat(r.value);
-        r.stats = this.getChartValues(parameters)
+        r.valueType = directive;
+        r.params = parameters;
+        r.stats = this.getChartValues(parameters);
 
         return r;
 
@@ -94,20 +104,6 @@ function Calculator(config) {
     }
 
     calc.ror = calc.rateOfReturn;
-
-    calc.getStatistics = function(parameters) {
-
-        var stats = _.clone(parameters);
-
-        stats.values = calc.getChartValues(parameters);
-        stats.startingValue = parameters.startingValue;
-        stats.startingValue = parameters.startingValue;
-
-        return stats;
-
-    }
-
-
 
 
     calc.refreshStashesValues = function() {

@@ -5,18 +5,29 @@
 var _calc = new Calculator();
 
 function getRorValue() {
-	return _calc.ror(params);
+   // e.preventDefault();
+
+    var form = document.forms.ror;
+
+    var params = {
+        interestRate: form.interestRate.value,
+        startingValue: form.startingValue.value,
+        finalValue: form.finalValue.value,
+        numMonths: form.numMonths.value
+    }
+
+    var result = _calc.ror(params);
+
+    console.log(result);
+    alert(result.valueType + ": " + result.value);
+    return false;
 }
 </script>
 <html>
 
 <h2>Rate of Return Calculator</h2>
-<form id="ror" name='ror' onsubmit="setTimeout(function(){alert(_calc.ror({
-	interestRate:form.interestRate,
-  startingValue: form.startingValue,
-  finalValue: form.finalValue,
-  numMonths: form.numMonths	
-}).value)}); return false;">
+<form id="ror" name='ror' onsubmit="getRorValue">
+
     <label>Interest Rate</label>
     <input type="number" id="interestRate">
 
@@ -32,11 +43,8 @@ function getRorValue() {
     <label>Number of Months</label>
     <input type="number" id="numMonths" value='26'>
 
-    <input type='submit'>Submit</submit>
 </form>
 
-<script>
-	var form = document.forms.ror;
-</script>
+<button onclick='getRorValue()'>Submit</button>
 
 </html>
