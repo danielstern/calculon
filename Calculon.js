@@ -31,6 +31,196 @@ function Calculon(config) {
         console.log("%c  calc.rateOfReturn ({ \n    %cinterestRate: 7.8\n    startingValue:  10000 \n    finalValue:null\n    numMonths: 240\n  %c});", "color: red", "color:blue", "color: red");
     }
 
+    calc.amortize = function(parameters) {
+
+        var allParamsGood = true;
+
+        if (!parameters) {
+            console.log("You must pass valid parameters to amortize;")
+            console.log("%cCalculon.amortize(parameters)", "color: green");
+            console.log("%c  @parameters: object { \n    %startingValue:number - the original amount to be amortized \n    duration:number - the duration in months of the amortization \n    yearlyInterestRate:number - the interest rate in decimal format \n    numMonths:number -  the number of months in the time period\n compoundFrequency:string['monthly','biAnnually','annually'] -  the frequency at which the amortization is compounded\n  %c}", "color: red", "color:blue", "color: red");
+        }
+
+
+        var sampleParams = {
+            startingValue: 1000,
+            duration: 60,
+            yearlyInterestRate: 0.11,
+            compoundFrequency: "monthly" || "biAnnually" || "anually"
+        };
+
+        parameters = parameters || sampleParams;
+
+        if (!parameters.compoundFrequency) parameters.compoundFrequency = "monthly";
+
+        return this.getAmortizationMonthlyPayment(
+            parameters.startingValue,
+            0,
+            parameters.yearlyInterestRate * 100,
+            parameters.duration * 12,
+            parameters.compoundFrequency,
+            false
+        )
+
+
+
+    }
+
+    calc.getAmortizationMonthlyPayment =   function (p1, dp, pih, pm, pfq, cpd, payoff) {
+
+              x = [];
+              var pi;
+              switch (cpd) {
+              case "monthly":
+                pi = 1 + (pih / 100 / 12);
+                break;
+              case "annually":
+                pi = 1 + (pih / 100 / 1);
+                break;
+              case "biAnnually":
+                pi = 1 + (pih / 100 / 2);
+                break;
+              }
+              
+            
+              var r = {};
+              var precision;
+
+              var count = 1000;
+              var totalpaid = 0;
+
+              var pv = p1 - dp;
+              
+              r.startingValue = pv;
+
+              var pve = pv;
+              var adjustmentAmount = pve / 5000;
+              var targetPrecision = 5; // less than this amount apart  
+              var weeks = pm * 4;
+
+              var gmw;
+
+              if (pfq == 'monthly') gmw = pv / 162.2; // don't even ask.
+              if (pfq == 'biWeekly') gmw = pv / 344.4;
+              if (pfq == 'weekly') gmw = pv / 344.8;
+              
+              while (count > 0) {
+
+                for (i = 0; i < weeks; i++) {
+                var q = {};
+
+                  if (pfq == "weekly") {
+                    pve = pve - gmw;
+                    totalpaid += gmw;
+
+                  };
+
+                  if (i % 2 == 0) {
+                    if (pfq == "biWeekly") {
+                      pve = pve - gmw;
+                      totalpaid += gmw;
+                    };
+
+                  }
+
+
+                  if (i % 4 == 0) {
+
+                    if (pfq == "monthly") {
+                      pve = pve - gmw;
+                      totalpaid += gmw;
+                    };
+
+
+
+                    if (i != 0 && cpd == "monthly") {
+                      pve *= pi;
+                    }
+
+                  }
+
+                  
+                  if (i != 0 && i % 26 == 0) {
+                    if (cpd == "biAnnually") pve *= pi;
+                  }
+
+                  if (i != 0 && i % 52 == 0) {
+                    if (cpd == "annually") pve *= pi;
+                  }
+
+                  q.interestAccrued = pve * pi - pve;
+                  switch (cpd) {
+                    case "monthly":
+                      q.interestAccrued /= 4;
+                      break;
+                    case "biAnnually":
+                      q.interestAccrued /= 26;
+                      break;
+                    case "annually":
+                      q.interestAccrued /= 52;
+                      break;
+                  }
+
+                  q.payment = gmw;
+                  switch (pfq) {
+                    case "monthly":
+                      q.payment /= 4;
+                      break;
+                    case "biWeekly":
+                      q.payment /= 2;
+                      break;
+                  }
+                  q.principalPaid = q.payment - q.interestAccrued;
+                  q.valueNow = pve;
+                  q.dp = dp;
+                  x.push(q);
+
+                }
+
+
+                precision = Math.abs(pve);
+
+                if (precision < targetPrecision) {
+                  break;
+                }
+
+                if (pve > 0) {
+                  gmw += adjustmentAmount;
+                } else {
+                  gmw -= adjustmentAmount;
+                }
+                adjustmentAmount *= 0.99;
+
+                pve = pv;
+                totalpaid = 0;
+                x =[];
+
+                count--;
+
+              }
+
+              r.paymentMonthly = undefined;
+              if (pfq =="weekly") r.paymentMonthly = r.gmw * 4;
+              if (pfq =="biWeekly") r.paymentMonthly = r.gmw * 2;
+              if (pfq =="monthly") r.paymentMonthly = r.gmw;
+
+            //  if (pfq == "weekly") r.paymentMonthly = r.paymentMonthly / 4;
+             // if (payStyle == "biWeekly" || pfq == "biWeekly") r.paymentMonthly = r.paymentMonthly / 2;
+
+              r.totalpaid = totalpaid;
+              r.interestPaid = totalpaid - pv;
+              r.interest = pi;
+              r.interestRatio = r.interestPaid / pv;
+              r.accuracy = precision;
+              r.targetPrecision = targetPrecision;
+
+              window.r = r;
+              return r;
+
+
+            }
+
+
 
     calc.rateOfReturn = function(parameters) {
 
@@ -358,5 +548,10 @@ Calculon.instructions = __calc.instructions;
 Calculon.rateOfReturn = function(params) {
     var c = new Calculon();
     return c.ror(params);
+}
+
+Calculon.amortize = function(params) {
+    var c = new Calculon();
+    return c.amortize(params);
 }
 Calculon.ror = Calculon.rateOfReturn;
