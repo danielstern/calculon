@@ -55,9 +55,8 @@ function Calculon(config) {
 
         return this.getAmortizationMonthlyPayment(
             parameters.startingValue,
-            0,
-            parameters.yearlyInterestRate * 100,
-            parameters.duration * 12,
+            parameters.yearlyInterestRate,
+            parameters.duration,
             parameters.compoundFrequency,
             false
         )
@@ -66,58 +65,56 @@ function Calculon(config) {
 
     }
 
-    calc.getAmortizationMonthlyPayment =   function (p1, dp, pih, pm, pfq, cpd, payoff) {
+    calc.getAmortizationMonthlyPayment =   function (startingValue, annualInterest, duration, paymentFrequency, cpd, payoff) {
 
-              x = [];
-              var pi;
+              records = [];
+
               switch (cpd) {
               case "monthly":
-                pi = 1 + (pih / 100 / 12);
+                startingValue = 1 + (annualInterest / 12);
                 break;
               case "annually":
-                pi = 1 + (pih / 100 / 1);
+                startingValue = 1 + (annualInterest / 1);
                 break;
               case "biAnnually":
-                pi = 1 + (pih / 100 / 2);
+                startingValue = 1 + (annualInterest / 2);
                 break;
               }
               
-            
               var r = {};
               var precision;
 
               var count = 1000;
               var totalpaid = 0;
 
-              var pv = p1 - dp;
-              
-              r.startingValue = pv;
+              r.startingValue = startingValue;
 
-              var pve = pv;
-              var adjustmentAmount = pve / 5000;
+              var estimateNumber = startingValue;
+
+              var adjustmentAmount = startingValue / 10;
               var targetPrecision = 5; // less than this amount apart  
-              var weeks = pm * 4;
+              var weeks = duration * 4;
 
               var gmw;
 
-              if (pfq == 'monthly') gmw = pv / 162.2; // don't even ask.
-              if (pfq == 'biWeekly') gmw = pv / 344.4;
-              if (pfq == 'weekly') gmw = pv / 344.8;
+              if (paymentFrequency == 'monthly') gmw = startingValue / 162.2; // don't even ask.
+              if (paymentFrequency == 'biWeekly') gmw = startingValue / 344.4;
+              if (paymentFrequency == 'weekly') gmw = startingValue / 344.8;
               
               while (count > 0) {
 
                 for (i = 0; i < weeks; i++) {
-                var q = {};
+                var record = {};
 
-                  if (pfq == "weekly") {
-                    pve = pve - gmw;
+                  if (paymentFrequency == "weekly") {
+                    estimateNumber = estimateNumber - gmw;
                     totalpaid += gmw;
 
                   };
 
                   if (i % 2 == 0) {
-                    if (pfq == "biWeekly") {
-                      pve = pve - gmw;
+                    if (paymentFrequency == "biWeekly") {
+                      estimateNumber = estimateNumber - gmw;
                       totalpaid += gmw;
                     };
 
@@ -126,72 +123,70 @@ function Calculon(config) {
 
                   if (i % 4 == 0) {
 
-                    if (pfq == "monthly") {
-                      pve = pve - gmw;
+                    if (paymentFrequency == "monthly") {
+                      estimateNumber = estimateNumber - gmw;
                       totalpaid += gmw;
                     };
 
 
 
                     if (i != 0 && cpd == "monthly") {
-                      pve *= pi;
+                      estimateNumber *= startingValue;
                     }
 
                   }
 
                   
                   if (i != 0 && i % 26 == 0) {
-                    if (cpd == "biAnnually") pve *= pi;
+                    if (cpd == "biAnnually") estimateNumber *= startingValue;
                   }
 
                   if (i != 0 && i % 52 == 0) {
-                    if (cpd == "annually") pve *= pi;
+                    if (cpd == "annually") estimateNumber *= startingValue;
                   }
 
-                  q.interestAccrued = pve * pi - pve;
+                  record.interestAccrued = estimateNumber * startingValue - estimateNumber;
                   switch (cpd) {
                     case "monthly":
-                      q.interestAccrued /= 4;
+                      record.interestAccrued /= 4;
                       break;
                     case "biAnnually":
-                      q.interestAccrued /= 26;
+                      record.interestAccrued /= 26;
                       break;
                     case "annually":
-                      q.interestAccrued /= 52;
+                      record.interestAccrued /= 52;
                       break;
                   }
 
-                  q.payment = gmw;
-                  switch (pfq) {
+                  record.payment = gmw;
+                  switch (paymentFrequency) {
                     case "monthly":
-                      q.payment /= 4;
+                      record.payment /= 4;
                       break;
                     case "biWeekly":
-                      q.payment /= 2;
+                      record.payment /= 2;
                       break;
                   }
-                  q.principalPaid = q.payment - q.interestAccrued;
-                  q.valueNow = pve;
-                  q.dp = dp;
-                  x.push(q);
+                  record.principalPaid = record.payment - record.interestAccrued;
+                  record.valueNow = estimateNumber;
+                  records.push(record);
 
                 }
 
-
-                precision = Math.abs(pve);
+                precision = Math.abs(estimateNumber);
 
                 if (precision < targetPrecision) {
                   break;
                 }
 
-                if (pve > 0) {
+                if (estimateNumber > 0) {
                   gmw += adjustmentAmount;
                 } else {
                   gmw -= adjustmentAmount;
                 }
                 adjustmentAmount *= 0.99;
 
-                pve = pv;
+                estimateNumber = startingValue;
                 totalpaid = 0;
                 x =[];
 
@@ -200,17 +195,17 @@ function Calculon(config) {
               }
 
               r.paymentMonthly = undefined;
-              if (pfq =="weekly") r.paymentMonthly = r.gmw * 4;
-              if (pfq =="biWeekly") r.paymentMonthly = r.gmw * 2;
-              if (pfq =="monthly") r.paymentMonthly = r.gmw;
+              if (paymentFrequency =="weekly") r.paymentMonthly = r.gmw * 4;
+              if (paymentFrequency =="biWeekly") r.paymentMonthly = r.gmw * 2;
+              if (paymentFrequency =="monthly") r.paymentMonthly = r.gmw;
 
-            //  if (pfq == "weekly") r.paymentMonthly = r.paymentMonthly / 4;
-             // if (payStyle == "biWeekly" || pfq == "biWeekly") r.paymentMonthly = r.paymentMonthly / 2;
+            //  if (paymentFrequency == "weekly") r.paymentMonthly = r.paymentMonthly / 4;
+             // if (payStyle == "biWeekly" || paymentFrequency == "biWeekly") r.paymentMonthly = r.paymentMonthly / 2;
 
               r.totalpaid = totalpaid;
-              r.interestPaid = totalpaid - pv;
-              r.interest = pi;
-              r.interestRatio = r.interestPaid / pv;
+              r.interestPaid = totalpaid - startingValue;
+              r.interest = startingValue;
+              r.interestRatio = r.interestPaid / startingValue;
               r.accuracy = precision;
               r.targetPrecision = targetPrecision;
 
