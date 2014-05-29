@@ -7,6 +7,7 @@ function Calculon(config) {
     calc.allPfsCalculated = [];
 
 
+
     var values;
 
     /** example 
@@ -38,182 +39,79 @@ function Calculon(config) {
         if (!parameters) {
             console.log("You must pass valid parameters to amortize;")
             console.log("%cCalculon.amortize(parameters)", "color: green");
-            console.log("%c  @parameters: object { \n    %startingValue:number - the original amount to be amortized \n    duration:number - the duration in months of the amortization \n    yearlyInterestRate:number - the interest rate in decimal format \n    numMonths:number -  the number of months in the time period\n compoundFrequency:string['monthly','biAnnually','annually'] -  the frequency at which the amortization is compounded\n  %c}", "color: red", "color:blue", "color: red");
+            console.log("%c  @parameters: object { \n    %startingValue:number - the original amount to be amortized \n    duration:number - the duration in months of the amortization \n    interestRate:number - the interest rate in decimal format \n    numMonths:number -  the number of months in the time period\n -  the frequency at which the amortization is compounded\n  %c}", "color: red", "color:blue", "color: red");
         }
 
 
         var sampleParams = {
             startingValue: 1000,
             duration: 60,
-            yearlyInterestRate: 0.11,
-            compoundFrequency: "monthly" || "biAnnually" || "anually"
+            interestRate: 0.11,
         };
 
         parameters = parameters || sampleParams;
 
-        if (!parameters.compoundFrequency) parameters.compoundFrequency = "monthly";
-
         return this.getAmortizationMonthlyPayment(
             parameters.startingValue,
-            parameters.yearlyInterestRate,
-            parameters.duration,
-            parameters.compoundFrequency,
-            false
+            parameters.interestRate,
+            parameters.duration
         )
 
 
 
     }
 
-    calc.getAmortizationMonthlyPayment =   function (startingValue, annualInterest, duration, paymentFrequency, cpd, payoff) {
+    calc.getAmortizationMonthlyPayment = function(startingValue, annualInterest, duration) {
 
-              records = [];
+        records = [];
 
-              switch (cpd) {
-              case "monthly":
-                startingValue = 1 + (annualInterest / 12);
-                break;
-              case "annually":
-                startingValue = 1 + (annualInterest / 1);
-                break;
-              case "biAnnually":
-                startingValue = 1 + (annualInterest / 2);
-                break;
-              }
-              
-              var r = {};
-              var precision;
+        var count = this.CalculonPrecision;
+        var targetPrecision = startingValue / 1000;
+        var monthlyPaymentGuess = startingValue / duration;
+        var adjustmentAmount = monthlyPaymentGuess / 10;
+        var monthlyInterest = 1 + annualInterest / 12;
 
-              var count = 1000;
-              var totalpaid = 0;
+        while (count > 0) {
 
-              r.startingValue = startingValue;
+            var totalpaid = 0;
+            var currentBalance = startingValue;
 
-              var estimateNumber = startingValue;
-
-              var adjustmentAmount = startingValue / 10;
-              var targetPrecision = 5; // less than this amount apart  
-              var weeks = duration * 4;
-
-              var gmw;
-
-              if (paymentFrequency == 'monthly') gmw = startingValue / 162.2; // don't even ask.
-              if (paymentFrequency == 'biWeekly') gmw = startingValue / 344.4;
-              if (paymentFrequency == 'weekly') gmw = startingValue / 344.8;
-              
-              while (count > 0) {
-
-                for (i = 0; i < weeks; i++) {
-                var record = {};
-
-                  if (paymentFrequency == "weekly") {
-                    estimateNumber = estimateNumber - gmw;
-                    totalpaid += gmw;
-
-                  };
-
-                  if (i % 2 == 0) {
-                    if (paymentFrequency == "biWeekly") {
-                      estimateNumber = estimateNumber - gmw;
-                      totalpaid += gmw;
-                    };
-
-                  }
-
-
-                  if (i % 4 == 0) {
-
-                    if (paymentFrequency == "monthly") {
-                      estimateNumber = estimateNumber - gmw;
-                      totalpaid += gmw;
-                    };
-
-
-
-                    if (i != 0 && cpd == "monthly") {
-                      estimateNumber *= startingValue;
-                    }
-
-                  }
-
-                  
-                  if (i != 0 && i % 26 == 0) {
-                    if (cpd == "biAnnually") estimateNumber *= startingValue;
-                  }
-
-                  if (i != 0 && i % 52 == 0) {
-                    if (cpd == "annually") estimateNumber *= startingValue;
-                  }
-
-                  record.interestAccrued = estimateNumber * startingValue - estimateNumber;
-                  switch (cpd) {
-                    case "monthly":
-                      record.interestAccrued /= 4;
-                      break;
-                    case "biAnnually":
-                      record.interestAccrued /= 26;
-                      break;
-                    case "annually":
-                      record.interestAccrued /= 52;
-                      break;
-                  }
-
-                  record.payment = gmw;
-                  switch (paymentFrequency) {
-                    case "monthly":
-                      record.payment /= 4;
-                      break;
-                    case "biWeekly":
-                      record.payment /= 2;
-                      break;
-                  }
-                  record.principalPaid = record.payment - record.interestAccrued;
-                  record.valueNow = estimateNumber;
-                  records.push(record);
-
-                }
-
-                precision = Math.abs(estimateNumber);
-
-                if (precision < targetPrecision) {
-                  break;
-                }
-
-                if (estimateNumber > 0) {
-                  gmw += adjustmentAmount;
-                } else {
-                  gmw -= adjustmentAmount;
-                }
-                adjustmentAmount *= 0.99;
-
-                estimateNumber = startingValue;
-                totalpaid = 0;
-                x =[];
-
-                count--;
-
-              }
-
-              r.paymentMonthly = undefined;
-              if (paymentFrequency =="weekly") r.paymentMonthly = r.gmw * 4;
-              if (paymentFrequency =="biWeekly") r.paymentMonthly = r.gmw * 2;
-              if (paymentFrequency =="monthly") r.paymentMonthly = r.gmw;
-
-            //  if (paymentFrequency == "weekly") r.paymentMonthly = r.paymentMonthly / 4;
-             // if (payStyle == "biWeekly" || paymentFrequency == "biWeekly") r.paymentMonthly = r.paymentMonthly / 2;
-
-              r.totalpaid = totalpaid;
-              r.interestPaid = totalpaid - startingValue;
-              r.interest = startingValue;
-              r.interestRatio = r.interestPaid / startingValue;
-              r.accuracy = precision;
-              r.targetPrecision = targetPrecision;
-
-              window.r = r;
-              return r;
-
-
+            for (i = 0; i < duration; i++) {
+                totalpaid += monthlyPaymentGuess;
+                currentBalance *= monthlyInterest;
             }
+
+            if (currentBalance - totalpaid < targetPrecision) {
+                break;
+            }
+
+            if (currentBalance - totalpaid > 0) {
+                monthlyPaymentGuess += adjustmentAmount;
+            } else {
+                monthlyPaymentGuess -= adjustmentAmount;
+            }
+
+            adjustmentAmount *= 0.99;
+
+
+            count--;
+
+        }
+
+
+        var r = {};
+        r.startingValue = startingValue;
+
+        r.paymentMonthly = monthlyPaymentGuess;
+        r.totalpaid = totalpaid;
+
+        r.interestPaid = totalpaid - startingValue;
+        r.interestRatio = r.interestPaid / startingValue;
+
+        return r;
+
+
+    }
 
 
 
@@ -256,8 +154,8 @@ function Calculon(config) {
 
         if (!directive || totalEmpty > 1) {
             console.log("You must pass a valid parameters object with all values but one filled in. All values must be numbers.");
-            console.log("%cYour parameters:","color:magenta", parameters);
-            
+            console.log("%cYour parameters:", "color:magenta", parameters);
+
             return;
         }
 
@@ -455,7 +353,7 @@ function Calculon(config) {
         i = ((guessI - 1) * 12) * 100;
 
         if (precision > 10 || isNaN(precision || count >= calc.CalculonPrecision)) return "?"
-     //   $('#interestError').html('');
+        //   $('#interestError').html('');
         return i.toFixed(3);
 
     }
@@ -532,7 +430,7 @@ function Calculon(config) {
 
         var temporalAccuracyTarget = pf * 0.22;
 
-       // if (isNaN(precision) || precision > temporalAccuracyTarget) return -1
+        // if (isNaN(precision) || precision > temporalAccuracyTarget) return -1
         return numMonths.toFixed(3);
 
     }
