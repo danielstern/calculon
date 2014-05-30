@@ -30,6 +30,11 @@ function Calculon(config) {
 
         console.log("%cExample Valid Input", "color: black");
         console.log("%c  calc.rateOfReturn ({ \n    %cinterestRate: 7.8\n    startingValue:  10000 \n    finalValue:null\n    numMonths: 240\n  %c});", "color: red", "color:blue", "color: red");
+        console.log("%c==========\n", "color: salmon");
+
+
+           console.log("%cCalculon.amortize(parameters)", "color: green");
+            console.log("%c  @parameters: object { \n    %cstartingValue:number - the original amount to be amortized \n    duration:number - the duration in months of the amortization \n    numMonths:number -  the number of months in the time period\n  %c}", "color: red", "color:blue", "color: red");
     }
 
     calc.amortize = function(parameters) {
@@ -38,8 +43,7 @@ function Calculon(config) {
 
         if (!parameters) {
             console.log("You must pass valid parameters to amortize;")
-            console.log("%cCalculon.amortize(parameters)", "color: green");
-            console.log("%c  @parameters: object { \n    %startingValue:number - the original amount to be amortized \n    duration:number - the duration in months of the amortization \n    interestRate:number - the interest rate in decimal format \n    numMonths:number -  the number of months in the time period\n -  the frequency at which the amortization is compounded\n  %c}", "color: red", "color:blue", "color: red");
+            this.instructions();         
         }
 
 
@@ -92,7 +96,6 @@ function Calculon(config) {
             }
 
             adjustmentAmount *= 0.99;
-
 
             count--;
 

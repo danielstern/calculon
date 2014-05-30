@@ -22,10 +22,30 @@ function getRorValue() {
     alert(result.valueType + ": " + result.value);
     return false;
 }
+
+
+function getAmortization() {
+   // e.preventDefault();
+
+    var form = document.forms.amortize;
+
+    var params = {
+        startingValue: form.startingValue.value,
+        duration: form.duration.value,
+        interestRate: form.interestRate.value,
+        };
+
+    var result = _calc.amortize(params);
+
+    console.log(result);
+    alert(result.paymentMonthly);
+    return false;
+}
 </script>
 <html>
 
-<h2>Rate of Return Calculator</h2>
+<h1>Calculator</h1>
+<h2>Rate of Return</h2>
 <form id="ror" name='ror' onsubmit="getRorValue">
 
     <label>Interest Rate</label>
@@ -46,5 +66,25 @@ function getRorValue() {
 </form>
 
 <button onclick='getRorValue()'>Submit</button>
+
+<h2>Amortize</h2>
+<form id="amortize" name='amortize' onsubmit="getRorValue">
+
+    <br>
+  
+   <label>Starting Value</label>
+    <input type="number" id="startingValue" value='10'>
+
+    <br>
+    <label>Interest Rate</label>
+    <input type="number" id="interestRate" value="0.28">
+
+    <br>
+    <label>Number of Months</label>
+    <input type="number" id="duration" value='26'>
+
+</form>
+
+<button onclick='getAmortization()'>Submit</button>
 
 </html>
